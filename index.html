@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>直线型助力特性 · 汽车设计第8章</title>
+  <style>
+:root {
+  color-scheme: light;
+  --ink: #162d3f;
+  --muted: #4e6070;
+  --page: #eef3f6;
+  --panel: #fff;
+  --inset: #f6f9fb;
+  --rule: #ccd9e1;
+  --nav: #132c3c;
+  --teal: #006c65;
+  --teal-soft: #e6f5f1;
+  --orange: #a5450c;
+  --orange-soft: #fff2e4;
+  --blue: #2b5f91;
+  --radius: 15px;
+  font-family: 'Microsoft YaHei UI', 'PingFang SC', 'Noto Sans CJK SC', system-ui, sans-serif;
+  font-synthesis: none;
+}
+* { box-sizing: border-box; }
+body { margin: 0; color: var(--ink); background: var(--page); line-height: 1.6; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid #067e73; outline-offset: 3px; }
+[hidden] { display: none !important; }
+.shell { width: min(1320px, calc(100% - 64px)); margin-inline: auto; }
+.top { background: var(--nav); color: #ecf4f7; }
+.top .shell { display: flex; justify-content: space-between; align-items: center; gap: 12px 20px; min-height: 62px; }
+.brand { font-weight: 700; letter-spacing: .02em; white-space: nowrap; }
+.top nav { display: flex; flex-wrap: wrap; gap: 4px; padding: 7px 0; }
+.top nav a, .top nav [aria-current] { display: block; padding: 6px 11px; border-radius: 6px; color: #d4e3ea; font-size: .9rem; text-decoration: none; }
+.top nav a:hover { background: #214658; color: white; }
+.top nav [aria-current] { color: #d5fff2; background: #214f50; font-weight: 700; }
+.top a:focus-visible { outline-color: #9de3d8; }
+.hero { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-block: 30px 23px; }
+.hero .eyebrow { color: var(--teal); font-weight: 700; font-size: .9rem; margin: 0 0 4px; }
+h1 { font-size: clamp(1.75rem,3vw,2.55rem); line-height: 1.2; letter-spacing: -.026em; margin: 0 0 10px; }
+.hero p { margin: 0; color: var(--muted); }
+h2 { margin: 0; font-size: 1.2rem; line-height: 1.35; }
+h3 { margin: 0; font-size: 1rem; line-height: 1.4; }
+p { margin: 0; }
+.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius); }
+.lab { display: grid; grid-template-columns: minmax(285px, .88fr) minmax(0, 2.35fr); gap: 17px; align-items: start; }
+.lab > *, .learn > * { min-width: 0; }
+.controls { padding: 19px 18px; }
+.controls h2 { margin-bottom: 12px; }
+.controls h3 { margin-bottom: 8px; }
+.note { color: var(--muted); font-size: .875rem; }
+.btn, .pills button { color: var(--ink); background: white; border: 1px solid #b7c9d4; border-radius: 8px; padding: 8px 12px; font-size: .89rem; font-weight: 650; }
+.btn:hover, .pills button:hover { color: var(--teal); border-color: var(--teal); background: #f0faf7; }
+.btn { white-space: nowrap; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pills button[aria-pressed="true"] { color: var(--teal); border-color: #519c91; background: var(--teal-soft); }
+.control { margin-top: 16px; }
+.field-head { display: grid; align-items: center; grid-template-columns: minmax(0,1fr) auto; gap: 7px; }
+.field-head label { font-weight: 700; font-size: .88rem; line-height: 1.35; }
+.number-box { display: inline-flex; align-items: center; justify-content: end; gap: 5px; }
+.number-box [data-number] { width: 4.6rem; padding: 4px 6px; border: 1px solid #bcced8; border-radius: 6px; color: var(--ink); background: var(--inset); text-align: end; font-variant-numeric: tabular-nums; }
+.number-box span { font-size: .77rem; color: var(--muted); white-space: nowrap; }
+[data-range] { display: block; width: 100%; margin: 9px 0 0; accent-color: var(--teal); cursor: pointer; }
+.range-notes { display: flex; justify-content: space-between; font-size: .75rem; color: var(--muted); line-height: 1.4; }
+.subpanel { margin-top: 16px; border-top: 1px solid var(--rule); padding-top: 14px; }
+.readout { padding: 17px 18px 15px; }
+.metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; margin: 0 0 16px; }
+.metric { background: var(--inset); border: 1px solid var(--rule); border-top: 3px solid #92b6c2; padding: 11px 12px 10px; border-radius: 9px; }
+.metric.primary { background: var(--teal-soft); border-color: #b4d8ce; border-top-color: var(--teal); }
+.metric dt { color: var(--muted); font-weight: 650; font-size: .85rem; line-height: 1.35; }
+.metric dd { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 5px; margin: 6px 0 0; font-variant-numeric: tabular-nums; font-size: clamp(1.2rem,2.6vw,1.85rem); line-height: 1.12; font-weight: 790; overflow-wrap: anywhere; }
+.metric dd small { color: var(--muted); font-size: .75rem; font-weight: 650; }
+.metric .compact { font-size: clamp(1.03rem, 2vw, 1.34rem); }
+.chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 5px 12px; flex-wrap: wrap; }
+.chart-head h2 { font-size: 1.08rem; }
+.chart-head .note { text-align: end; }
+.chart-frame { position: relative; margin-top: 7px; background: #fdfeff; border: 1px solid var(--rule); border-radius: 9px; height: 350px; overflow: hidden; }
+.chart-frame canvas { display: block; width: 100%; height: 100%; touch-action: pan-y; }
+.chart-frame canvas[data-clickable] { cursor: crosshair; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 8px; color: var(--muted); font-size: .875rem; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { display: inline-block; width: 18px; height: 0; border-top: 3px solid var(--color, var(--teal)); }
+.swatch.dashed { border-top-style: dashed; }
+.chart-notes { margin: 9px 0 0; color: var(--muted); font-size: .875rem; }
+.status { margin-top: 12px; padding: 9px 11px; color: var(--ink); background: var(--inset); border: 1px solid var(--rule); border-radius: 8px; font-size: .9rem; }
+.status strong { color: var(--teal); }
+.force-rows { margin-top: 13px; display: grid; gap: 8px; }
+.force-head { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: .84rem; font-variant-numeric: tabular-nums; }
+.load-bar { height: 10px; margin-top: 4px; background: #e4edf1; border-radius: 5px; overflow: hidden; display: flex; }
+.load-bar .driver { background: #13786f; }
+.load-bar .motor { background: #d1781d; }
+.tablescroll { overflow-x: auto; margin-top: 11px; border: 1px solid var(--rule); border-radius: 9px; }
+table { width: 100%; border-collapse: collapse; font-size: .875rem; font-variant-numeric: tabular-nums; }
+th, td { padding: 8px 9px; text-align: start; vertical-align: middle; }
+thead { color: var(--muted); background: var(--inset); }
+tbody tr + tr { border-top: 1px solid var(--rule); }
+tbody th { font-weight: 700; }
+tr.current { background: var(--teal-soft); }
+.speed-library { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 5px; margin-top: 7px; }
+.speed-library button { display: grid; justify-items: center; padding: 4px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.speed-library i { width: 17px; margin-bottom: 3px; border-top: 3px solid var(--color); }
+.mode-buttons button { flex: 1; padding-inline: 6px; white-space: nowrap; }
+.zone-key { display: grid; grid-template-columns: repeat(3,1fr); color: var(--muted); font-size: .84rem; margin-top: 9px; gap: 5px; }
+.zone-key span { padding: 6px; text-align: center; border-radius: 6px; background: #f0f3f6; }
+.zone-key b { color: var(--teal); }
+.zone-key [data-selected="true"] { background: var(--teal-soft); color: var(--ink); box-shadow: inset 0 0 0 1px #7cb7ac; }
+.learn { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 17px; margin-block: 17px; }
+.learn > .panel { padding: 17px 18px; }
+.learn h2 { margin-bottom: 8px; font-size: 1.09rem; }
+.math { padding: 8px 11px; border-inline-start: 3px solid #69a9a0; background: var(--inset); margin-block: 8px; line-height: 1.65; overflow-wrap: anywhere; }
+.math div + div { margin-top: 3px; }
+.learn .note + .note { margin-top: 8px; }
+summary { cursor: pointer; color: var(--ink); padding-block: 8px; }
+details + details { border-top: 1px solid var(--rule); }
+details p { padding: 0 0 8px 17px; }
+footer { color: var(--muted); margin: 0 0 22px; font-size: .83rem; }
+@media (max-width: 1010px) {
+  .shell { width: calc(100% - 38px); }
+  .lab { grid-template-columns: minmax(240px, .77fr) minmax(0, 1.5fr); gap: 12px; }
+  .controls, .readout { padding-inline: 13px; }
+}
+@media (max-width: 760px) {
+  .shell { width: calc(100% - 24px); }
+  .top .shell { align-items: start; gap: 1px; flex-direction: column; padding-top: 9px; }
+  .top nav { padding: 4px 0 8px; }
+  .top nav a, .top nav [aria-current] { padding-inline: 7px; font-size: .83rem; }
+  .hero { align-items: start; margin-block: 18px 13px; flex-direction: column; gap: 11px; }
+  .lab, .learn { grid-template-columns: minmax(0,1fr); }
+  .controls h2 { margin-bottom: 8px; }
+  .chart-frame { height: 288px; }
+  .metrics { gap: 5px; }
+  .metric { padding: 8px 6px; }
+  .metric dt { font-size: .78rem; }
+  .chart-head .note { text-align: start; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <div class="top"><div class="shell">
+    <span class="brand">《汽车设计》 · 第8章 转向系统设计</span>
+    <nav aria-label="电动助力转向教学工具"><a href="8.5-%E7%94%B5%E5%8A%A8%E5%8A%A9%E5%8A%9B%E8%BD%AC%E5%90%91%E7%9A%84%E8%BD%BB%E4%BE%BF%E6%80%A7%E4%B8%8E%E8%B7%AF%E6%84%9F.html">轻便性与路感</a>
+<span aria-current="page">直线型助力</span>
+<a href="8.5-%E8%BD%A6%E9%80%9F%E6%84%9F%E5%BA%94%E5%9E%8B%E5%8A%A9%E5%8A%9B%E7%89%B9%E6%80%A7-%E5%9B%BE8-46.html">车速感应型助力</a></nav>
+  </div></div>
+  <main class="shell">
+    <header class="hero">
+      <div><p class="eyebrow">电动助力转向（EPS） · 图8-44、图8-45</p><h1>直线型助力特性</h1><p>改变方向盘力矩识别三个区段，再保持起助点和饱和上限相同，对比两条曲线的斜率。</p></div>
+      <button type="button" class="btn" id="reset">恢复初始值</button>
+    </header>
+    <div class="lab">
+      <aside class="panel controls" aria-label="试验设置"><h2>试验设置</h2>
+<div class="pills" aria-label="助力特性视图">
+  <button type="button" data-view="zones" aria-pressed="false">区段 · 图8-44</button>
+  <button type="button" data-view="compare" aria-pressed="true">比较斜率 · 图8-45</button>
+</div><div class="control">
+  <div class="field-head">
+    <label id="hand-label" for="hand">转向盘力矩 M<sub>h</sub></label>
+    <span class="number-box"><input type="number" data-number id="hand-number" aria-labelledby="hand-label" min="-20" max="20" step="0.05" value="3"><span>N·m</span></span>
+  </div>
+  <input type="range" data-range id="hand" min="-20" max="20" step="0.05" value="3">
+  <div class="range-notes" aria-hidden="true"><span>-20</span><span>20</span></div>
+</div><div class="control">
+  <div class="field-head">
+    <label id="cut-in-label" for="cut-in">起助力矩 M<sub>h0</sub></label>
+    <span class="number-box"><input type="number" data-number id="cut-in-number" aria-labelledby="cut-in-label" min="0.5" max="2" step="0.05" value="1"><span>N·m</span></span>
+  </div>
+  <input type="range" data-range id="cut-in" min="0.5" max="2" step="0.05" value="1">
+  <div class="range-notes" aria-hidden="true"><span>0.5</span><span>2</span></div>
+</div><div class="control">
+  <div class="field-head">
+    <label id="cap-label" for="cap">最大助力矩 |M<sub>a,max</sub>|</label>
+    <span class="number-box"><input type="number" data-number id="cap-number" aria-labelledby="cap-label" min="12" max="32" step="1" value="24"><span>N·m</span></span>
+  </div>
+  <input type="range" data-range id="cap" min="12" max="32" step="1" value="24">
+  <div class="range-notes" aria-hidden="true"><span>12</span><span>32</span></div>
+</div><div class="control">
+  <div class="field-head">
+    <label id="gain1-label" for="gain1">曲线 1 斜率 K₁</label>
+    <span class="number-box"><input type="number" data-number id="gain1-number" aria-labelledby="gain1-label" min="6.5" max="12" step="0.1" value="8"></span>
+  </div>
+  <input type="range" data-range id="gain1" min="6.5" max="12" step="0.1" value="8">
+  <div class="range-notes" aria-hidden="true"><span>6.5</span><span>12</span></div>
+</div><div id="control-gain2"><div class="control">
+  <div class="field-head">
+    <label id="gain2-label" for="gain2">曲线 2 斜率 K₂</label>
+    <span class="number-box"><input type="number" data-number id="gain2-number" aria-labelledby="gain2-label" min="2" max="6" step="0.1" value="4"></span>
+  </div>
+  <input type="range" data-range id="gain2" min="2" max="6" step="0.1" value="4">
+  <div class="range-notes" aria-hidden="true"><span>2</span><span>6</span></div>
+</div></div><div class="subpanel"><h3>跳到曲线 1 的典型区段</h3>
+  <div class="pills" id="zones" aria-label="区段选取">
+    <button type="button" data-zone="A" aria-pressed="false">A 无助力</button>
+    <button type="button" data-zone="B" aria-pressed="true">B 助力变化</button>
+    <button type="button" data-zone="D" aria-pressed="false">D 饱和</button>
+  </div>
+</div></aside>
+      <section class="panel readout" aria-label="实时仿真结果"><dl class="metrics"><div class="metric primary"><dt>曲线 1 当前区段</dt><dd class="compact"><span id="zone-reading">—</span></dd></div>
+<div class="metric"><dt>曲线 1 助力矩幅值</dt><dd><span id="assist-reading">—</span><small>N·m</small></dd></div>
+<div class="metric"><dt>曲线 1 当量路感 E<sub>d</sub></dt><dd class="compact"><span id="feel-reading">—</span></dd></div></dl><div class="chart-head"><h2>转向盘力矩与电动助力</h2><p class="note">点击曲线图区设定转向盘力矩</p></div>
+<div class="chart-frame"><canvas id="graph" role="img" aria-label="直线型助力曲线，横轴为转向盘力矩，纵轴为助力矩幅值。真实助力方向与输入同向。"></canvas></div><div class="legend" aria-label="曲线图例">
+  <span><i class="swatch" style="--color:#00756d"></i>曲线 1（K₁）</span>
+  <span id="legend-second"><i class="swatch dashed" style="--color:#b85213"></i>曲线 2（K₂）</span>
+  <span>背景区段按曲线 1 划分</span>
+</div>
+<div class="zone-key" aria-label="曲线1三段特性">
+  <span id="zone-A"><b>A</b> 无助力</span><span id="zone-B"><b>B</b> 助力变化</span><span id="zone-D"><b>D</b> 助力不变</span>
+</div>
+<div class="tablescroll" id="comparison"><table aria-label="相同输入下比较两条助力曲线">
+  <thead><tr><th scope="col">曲线</th><th scope="col">助力矩幅值（N·m）</th><th scope="col">饱和所需 M<sub>h,max</sub>（N·m）</th><th scope="col">局部 E<sub>d</sub></th></tr></thead>
+  <tbody><tr><th scope="row">K₁</th><td id="a1">—</td><td id="s1">—</td><td id="e1">—</td></tr>
+    <tr><th scope="row">K₂</th><td id="a2">—</td><td id="s2">—</td><td id="e2">—</td></tr></tbody>
+</table></div>
+<p class="status" id="linear-status" role="status"></p></section>
+    </div>
+    <section class="learn">
+  <article class="panel"><h2>三段助力及其分界</h2><div class="math">
+  <div><strong>A</strong> · |M<sub>h</sub>| &lt; M<sub>h0</sub> 时，|M<sub>a</sub>|＝0</div>
+  <div><strong>B</strong> · 两折点之间，|M<sub>a</sub>|＝K(|M<sub>h</sub>|−M<sub>h0</sub>)</div>
+  <div><strong>D</strong> · |M<sub>h</sub>| &gt; M<sub>h,max</sub> 时，|M<sub>a</sub>|＝|M<sub>a,max</sub>|</div>
+  <div>M<sub>h,max</sub> = M<sub>h0</sub> ＋ |M<sub>a,max</sub>|/K</div>
+</div>
+<p class="note">纵轴按图8-44、图8-45表示助力幅值，实际助力随输入改变方向。饱和对应最大助力电流。远离折点时，A、D 段 H＝0，B 段 H＝K。</p></article>
+  <article class="panel"><h2>课堂探究</h2><details><summary>为什么在相同的输入力矩下，曲线 1 通常助力更大，却更早进入饱和？</summary>
+  <p class="note">两条曲线起助点和最大助力相同。较大斜率每增加 1 N·m 输入会提供更多助力，因此所需输入更小。两条曲线都饱和时，助力相等。</p></details>
+<details><summary>点击 D 段，为什么还有最大助力，E<sub>d</sub> 却回到 100%？</summary>
+  <p class="note">助力矩停在上限，输入再增大时助力增量近似为零。E<sub>d</sub> 描述增量反馈，折点处的小输入侧与大输入侧取不同斜率。</p></details>
+<details><summary>起助力矩增大时，A、B 和 D 的分界怎样移动？</summary>
+  <p class="note">两侧无助力区变宽。只改起助力矩时，起助点和饱和点随之向外移动，两折点的间距仍等于 |M<sub>a,max</sub>|/K。</p></details></article>
+</section>
+    <footer>《汽车设计》第5版 · 印刷第285–286页 · 图8-44、图8-45 · 参数为教学设定</footer>
+  </main>
+  <script>
+'use strict';
+
+const byId = id => document.getElementById(id);
+const clip = (value, min, max) => Math.max(min, Math.min(max, value));
+const text = (id, value) => { byId(id).textContent = value; };
+const fmt = (value, digits = 2) => (Math.abs(value) < 0.5 * 10**-digits ? 0 : value).toFixed(digits).replace('-', '−');
+const percent = (part, digits = 1) => `${fmt(100 * part, digits)}%`;
+const value = id => byId(id).valueAsNumber;
+const colors = { teal: '#00756d', orange: '#b85213', slate: '#5b7388', ink: '#162d3f' };
+
+function setControl(id, next) {
+  const range = byId(id);
+  range.value = String(clip(next, Number(range.min), Number(range.max)));
+  byId(`${id}-number`).value = range.value;
+}
+
+function setControls(values) {
+  Object.entries(values).forEach(([id, next]) => setControl(id, next));
+}
+
+function bindControls(update) {
+  for (const range of document.querySelectorAll('[data-range]')) {
+    const number = byId(`${range.id}-number`);
+    range.addEventListener('input', () => {
+      number.value = range.value;
+      update();
+    });
+    number.addEventListener('input', () => {
+      const next = number.valueAsNumber;
+      if (Number.isFinite(next) && next >= Number(range.min) && next <= Number(range.max)) {
+        range.value = number.value;
+        update();
+      }
+    });
+    number.addEventListener('change', () => {
+      setControl(range.id, Number.isFinite(number.valueAsNumber) ? number.valueAsNumber : range.valueAsNumber);
+      update();
+    });
+  }
+}
+
+function paint(canvas, spec) {
+  const {clientWidth: width, clientHeight: height} = canvas;
+  if (!width || !height) return null;
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const pxWidth = Math.round(width*dpr), pxHeight = Math.round(height*dpr);
+  if (canvas.width !== pxWidth || canvas.height !== pxHeight) {
+    canvas.width = pxWidth;
+    canvas.height = pxHeight;
+  }
+  const c = canvas.getContext('2d');
+  c.setTransform(pxWidth/width, 0, 0, pxHeight/height, 0, 0);
+  c.clearRect(0, 0, width, height);
+  const {xmin,xmax,ymin,ymax} = spec;
+  const left = width < 410 ? 43 : 55, right = width - 17;
+  const top = 34, bottom = height - 53;
+  const x = v => left+(v-xmin)/(xmax-xmin)*(right-left);
+  const y = v => bottom-(v-ymin)/(ymax-ymin)*(bottom-top);
+  const line = (ax,ay,bx,by) => { c.beginPath(); c.moveTo(ax,ay); c.lineTo(bx,by); c.stroke(); };
+
+  c.save();
+  c.beginPath();
+  c.rect(left, top, right-left, bottom-top);
+  c.clip();
+  for (const band of spec.bands ?? []) {
+    c.fillStyle = band.color;
+    c.fillRect(x(band.from),top,x(band.to)-x(band.from),bottom-top);
+  }
+  c.strokeStyle = '#e0e8ee';
+  c.lineWidth = 1;
+  for (const v of spec.xticks) line(x(v),top,x(v),bottom);
+  for (const v of spec.yticks) line(left,y(v),right,y(v));
+  for (const mark of spec.guides ?? []) {
+    c.setLineDash(mark.dash ?? [4,4]);
+    c.strokeStyle = mark.color ?? '#7b919f';
+    line(x(mark.x),top,x(mark.x),bottom);
+  }
+  for (const series of spec.series) {
+    c.strokeStyle = series.color;
+    c.setLineDash(series.dash ?? []);
+    c.lineWidth = series.width ?? 2;
+    c.lineJoin = 'round';
+    c.beginPath();
+    series.points.forEach(([xs,ys], i) => i ? c.lineTo(x(xs),y(ys)) : c.moveTo(x(xs),y(ys)));
+    c.stroke();
+  }
+  c.restore();
+
+  c.lineWidth = 1;
+  c.strokeStyle = '#7690a1';
+  line(left,top,left,bottom);
+  line(left,bottom,right,bottom);
+  if (xmin < 0 && xmax > 0) line(x(0),top,x(0),bottom);
+  c.font = `12px 'Microsoft YaHei UI',system-ui,sans-serif`;
+  c.fillStyle = '#4e6070';
+  c.textBaseline = 'middle';
+  c.textAlign = 'right';
+  for (const v of spec.yticks) c.fillText(fmt(v, 0),left-8,y(v));
+  c.textAlign = 'center';
+  for (const v of spec.xticks) c.fillText(fmt(v, 0),x(v),bottom+14);
+  c.font = `600 12px 'Microsoft YaHei UI',system-ui,sans-serif`;
+  c.fillStyle = colors.ink;
+  c.textAlign = 'left';
+  c.fillText(spec.ylabel,left,16);
+  c.textAlign = 'right';
+  c.fillText(spec.xlabel,right,height-12);
+  for (const mark of spec.markers ?? []) {
+    c.beginPath();
+    c.arc(x(mark.x),y(mark.y),5,0,2*Math.PI);
+    c.fillStyle = '#fff';
+    c.fill();
+    c.lineWidth = 2.5;
+    c.strokeStyle = mark.color;
+    c.stroke();
+  }
+  return {left,right,top,bottom,xmin,xmax};
+}
+
+function plot(id, createSpec, onPick) {
+  const canvas = byId(id);
+  let geometry;
+  const draw = () => { geometry = paint(canvas, createSpec()); };
+  new ResizeObserver(draw).observe(canvas.parentElement);
+  if (onPick) {
+    canvas.dataset.clickable = '';
+    canvas.addEventListener('click', event => {
+      const {left,right,top,bottom,xmin,xmax} = geometry;
+      const box = canvas.getBoundingClientRect();
+      const x = event.clientX-box.left, y = event.clientY-box.top;
+      if (x >= left && x <= right && y >= top && y <= bottom) onPick(xmin+(x-left)/(right-left)*(xmax-xmin));
+    });
+  }
+  return draw;
+}
+
+function ticks(min, max, step) {
+  return Array.from({length: Math.round((max-min)/step)+1}, (_,i) => min+i*step);
+}
+
+function characteristic(input, cutIn, cap, gain) {
+  const torque = Math.abs(input);
+  const limit = cutIn+cap/gain;
+  const magnitude = clip(gain*(torque-cutIn),0,cap);
+  const side = Math.sign(input);
+  const atStart = Math.abs(torque-cutIn) < 1e-7;
+  const atLimit = Math.abs(torque-limit) < 1e-7;
+  const zone = atStart ? '起助点' : atLimit ? '饱和点' : torque < cutIn ? 'A' : torque < limit ? 'B' : 'D';
+  return { input, magnitude, assist: side*magnitude, zone, slope: zone === 'B' ? gain : 0, gain, limit };
+}
+
+function inputForLoad(load, cutIn, cap, gain) {
+  const magnitude = Math.abs(load);
+  const end = cutIn+cap/gain+cap;
+  let input = magnitude;
+  if (magnitude >= end) input = magnitude-cap;
+  else if (magnitude > cutIn) input = (magnitude+gain*cutIn)/(1+gain);
+  return Math.sign(load)*input;
+}
+
+function mechanicalFeel(row) {
+  const active = percent(1/(1+row.gain));
+  if (row.zone === '起助点') return `100% / ${active}`;
+  if (row.zone === '饱和点') return `${active} / 100%`;
+  return row.slope ? active : '100%';
+}
+
+function profile(cutIn, cap, gain, extent) {
+  const end = cutIn+cap/gain;
+  const breakpoints = [-end,-cutIn,0,cutIn,end].filter(x => Math.abs(x) < extent);
+  return [-extent,...breakpoints,extent].map(x => [x,characteristic(x,cutIn,cap,gain).magnitude]);
+}
+
+const zoneNames = { A:'A · 无助力', B:'B · 助力变化', D:'D · 饱和', 起助点:'A / B 折点', 饱和点:'B / D 折点' };
+let view = 'compare';
+
+function workingState() {
+  const hand = value('hand'), cutIn = value('cut-in'), cap = value('cap');
+  const primary = characteristic(hand,cutIn,cap,value('gain1'));
+  const secondary = characteristic(hand,cutIn,cap,value('gain2'));
+  return { hand,cutIn,cap,primary,secondary };
+}
+
+const draw = plot('graph', () => {
+  const {hand,cutIn,cap,primary,secondary} = workingState();
+  const comparing = view === 'compare';
+  const maxInput = Math.max(8,Math.abs(hand)+1,(comparing ? secondary.limit : primary.limit)+1);
+  const xStep = maxInput > 15 ? 4 : 2;
+  const extent = Math.ceil(maxInput/xStep)*xStep;
+  const yStep = cap > 24 ? 10 : 5;
+  const ymax = (Math.floor(cap/yStep)+1)*yStep;
+  const a = cutIn, b = primary.limit;
+  const series = [{points:profile(cutIn,cap,primary.gain,extent),color:colors.teal,width:3}];
+  const markers = [{x:hand,y:primary.magnitude,color:colors.teal}];
+  if (comparing) {
+    series.push({points:profile(cutIn,cap,secondary.gain,extent),color:colors.orange,width:2.3,dash:[7,4]});
+    if (primary.magnitude !== secondary.magnitude) markers.push({x:hand,y:secondary.magnitude,color:colors.orange});
+  }
+  return { xmin:-extent, xmax:extent, ymin:0, ymax, xticks:ticks(-extent,extent,xStep), yticks:ticks(0,ymax,yStep),
+    xlabel:'转向盘力矩 Mₕ（N·m）', ylabel:'助力矩幅值 |Mₐ|（N·m）',
+    bands: [
+      {from:-extent,to:-b,color:'#fff2e4'}, {from:-b,to:-a,color:'#e7f5f1'},
+      {from:-a,to:a,color:'#eef3f7'}, {from:a,to:b,color:'#e7f5f1'}, {from:b,to:extent,color:'#fff2e4'}
+    ],
+    guides: [...[-b,-a,a,b].map(x=>({x,color:'#8c9eaa'})), {x:hand,color:'#334e5f',dash:[3,3]}], series, markers
+  };
+}, selected => {
+  setControl('hand', selected);
+  update();
+});
+
+function update() {
+  const {hand,cutIn,primary,secondary} = workingState();
+  const comparing = view === 'compare';
+  byId('control-gain2').hidden = !comparing;
+  byId('legend-second').hidden = !comparing;
+  byId('comparison').hidden = !comparing;
+  document.querySelectorAll('[data-view]').forEach(button => button.setAttribute('aria-pressed',button.dataset.view === view));
+  document.querySelectorAll('[data-zone]').forEach(button => button.setAttribute('aria-pressed',button.dataset.zone === primary.zone));
+  for (const zone of ['A','B','D']) byId('zone-'+zone).dataset.selected = zone === primary.zone;
+  text('zone-reading',zoneNames[primary.zone]);
+  text('assist-reading',fmt(primary.magnitude));
+  text('feel-reading',mechanicalFeel(primary));
+  [primary,secondary].forEach((row,i) => {
+    text(`a${i+1}`,fmt(row.magnitude));
+    text(`s${i+1}`,fmt(row.limit));
+    text(`e${i+1}`,mechanicalFeel(row));
+  });
+  const folded = primary.zone.length > 1 || (comparing && secondary.zone.length > 1);
+  text('linear-status', `曲线 1 在 |Mₕ|＝${fmt(cutIn)} N·m 时起助，在 ${fmt(primary.limit)} N·m 时饱和。` +
+    `当前实际助力矩 Mₐ＝${fmt(primary.assist)} N·m，等效输出力矩 M_z＝${fmt(hand+primary.assist)} N·m。` +
+    (folded ? '折点的两个路感数值依次对应较小和较大的输入幅值侧。' : ''));
+  draw();
+}
+
+document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => {
+  view = button.dataset.view;
+  update();
+}));
+document.querySelectorAll('[data-zone]').forEach(button => button.addEventListener('click', () => {
+  const {hand,cutIn,primary} = workingState();
+  const selected = { A:cutIn/2, B:(cutIn+primary.limit)/2, D:primary.limit+1 };
+  setControl('hand', (Math.sign(hand) || 1)*selected[button.dataset.zone]);
+  update();
+}));
+byId('reset').addEventListener('click', () => {
+  view = 'compare';
+  setControls({hand:3,'cut-in':1,cap:24,gain1:8,gain2:4});
+  update();
+});
+bindControls(update);
+update();
+  </script>
+<script>
+/* 防右键与查看源代码快捷键 */
+(function(){
+  document.addEventListener('contextmenu',function(e){e.preventDefault();});
+  document.addEventListener('keydown',function(e){
+    var k=(e.key||'').toLowerCase();
+    if(e.key==='F12'||
+       (e.ctrlKey&&k==='u')||
+       (e.ctrlKey&&k==='s')||
+       (e.ctrlKey&&e.shiftKey&&(k==='i'||k==='j'||k==='c'))||
+       (e.metaKey&&e.altKey&&(k==='i'||k==='j'||k==='c'||k==='u'))||
+       (e.metaKey&&k==='u')||(e.metaKey&&k==='s')){
+      e.preventDefault();e.stopPropagation();return false;
+    }
+  },true);
+})();
+</script>
+</body>
+</html>
